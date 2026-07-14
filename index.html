@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do Developers Get Paid What They're Worth? — A Salary EDA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F6F7F9;
+    --paper-raised: #FFFFFF;
+    --ink: #1F2933;
+    --ink-soft: #4B5563;
+    --line: #E1E4E8;
+    --blue: #4E79A7;
+    --blue-soft: #EAF0F7;
+    --amber: #E8871E;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+  }
+
+  a{ color: var(--blue); }
+
+  .wrap{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding: 96px 0 64px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--blue);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .eyebrow::before{ content: "In [1]: "; color: var(--ink-soft); }
+
+  h1{
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: clamp(32px, 5vw, 48px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+  }
+  .hero p.lede{
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 0 0 36px;
+  }
+
+  .stat-row{
+    display:flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .stat{
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 22px;
+    min-width: 160px;
+  }
+  .stat .num{
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .stat .num.amber{ color: var(--amber); }
+  .stat .label{
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+
+  /* ---------- Notebook cells ---------- */
+  section.step{
+    padding: 56px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  section.step:last-of-type{ border-bottom: none; }
+
+  .step-tag{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+  .step h2{
+    font-size: 26px;
+    margin: 0 0 14px;
+    font-weight: 700;
+  }
+  .step .intro{
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+    max-width: 68ch;
+  }
+
+  .cell{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--paper-raised);
+    margin-bottom: 18px;
+  }
+  .cell-in{
+    display:flex;
+    gap: 14px;
+    padding: 16px 18px;
+    background: #FBFBFC;
+    border-bottom: 1px solid var(--line);
+  }
+  .cell-in .tag{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--blue);
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+  .cell-in pre{
+    margin:0;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.55;
+    color: #2D3748;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .cell-out{
+    padding: 18px 20px;
+  }
+  .cell-out .tag{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    display:block;
+  }
+  .cell-out img{
+    width: 100%;
+    border-radius: 4px;
+    display:block;
+    border: 1px solid var(--line);
+  }
+  .cell-out table{
+    width:100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .cell-out th, .cell-out td{
+    text-align:left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cell-out th{ color: var(--ink-soft); font-weight: 500; }
+
+  .finding{
+    background: var(--blue-soft);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    font-size: 15px;
+    margin-top: 4px;
+  }
+  .finding strong{ color: var(--ink); }
+
+  .callout-amber{
+    background: #FDF3E7;
+    border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    font-size: 15px;
+    margin-top: 4px;
+  }
+
+  /* ---------- Conclusion ---------- */
+  .conclusion{
+    padding: 56px 0 96px;
+  }
+  .conclusion h2{ font-size: 26px; margin-bottom: 16px;}
+  .conclusion ul{
+    padding-left: 20px;
+    color: var(--ink-soft);
+  }
+  .conclusion li{ margin-bottom: 10px; }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 32px 0 64px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 640px){
+    .hero{ padding: 64px 0 48px; }
+    .stat{ min-width: 130px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">salary_eda.ipynb</div>
+      <h1>Do developers get paid what they're worth?</h1>
+      <p class="lede">
+        An exploratory analysis of 49,191 responses from the 2025 Stack Overflow
+        Developer Survey — cleaning messy real-world data to find out what actually
+        predicts a developer's salary.
+      </p>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="num amber">5×</div>
+          <div class="label">salary gap between highest &amp; lowest paying countries</div>
+        </div>
+        <div class="stat">
+          <div class="num">0.32</div>
+          <div class="label">correlation between experience &amp; salary — weaker than expected</div>
+        </div>
+        <div class="stat">
+          <div class="num">17,679</div>
+          <div class="label">clean salary records after removing outliers</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 1 -->
+    <section class="step">
+      <div class="step-tag">step 01</div>
+      <h2>Loading the data</h2>
+      <p class="intro">
+        The dataset is large and mixed-type — 172 questions asked to 49,191 developers,
+        from salary and role to tools and AI usage. First step: load it and get a feel
+        for its shape.
+      </p>
+      <div class="cell">
+        <div class="cell-in">
+          <span class="tag">In [1]:</span>
+          <pre>df = pd.read_csv("results.csv", low_memory=False)
+df.shape</pre>
+        </div>
+        <div class="cell-out">
+          <span class="tag">Out [1]:</span>
+          <div class="finding">
+            <strong>49,191 rows × 172 columns.</strong> Mostly categorical —
+            119 text columns, 52 numeric, and a single row-ID column.
+            This confirmed the real cleaning work would be about handling
+            missing answers and inconsistent categories, not fixing numbers.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step">
+      <div class="step-tag">step 02</div>
+      <h2>Narrowing the scope</h2>
+      <p class="intro">
+        172 questions is too many to analyze meaningfully in one project.
+        I pulled out the 12 columns directly relevant to a "jobs &amp; salary" story.
+      </p>
+      <div class="cell">
+        <div class="cell-in">
+          <span class="tag">In [2]:</span>
+          <pre>cols = ["MainBranch", "Age", "EdLevel", "Employment", "WorkExp",
+        "DevType", "Country", "Currency", "ConvertedCompYearly",
+        "RemoteWork", "OrgSize", "JobSat"]
+
+df_jobs = df[cols]</pre>
+        </div>
+        <div class="cell-out">
+          <span class="tag">Out [2]:</span>
+          <div class="finding">
+            A focused working table — same 49,191 people, just the questions
+            that matter for this analysis. Kept the original <code>df</code>
+            untouched in case anything else was needed later.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step">
+      <div class="step-tag">step 03</div>
+      <h2>Why is half the salary data missing?</h2>
+      <p class="intro">
+        Over half of respondents didn't report a salary. Before deciding how to
+        handle that, I checked whether it was random — or explainable.
+      </p>
+      <div class="cell">
+        <div class="cell-in">
+          <span class="tag">In [3]:</span>
+          <pre>df_jobs.groupby("Employment")["ConvertedCompYearly"] \
+    .apply(lambda x: x.isnull().mean())</pre>
+        </div>
+        <div class="cell-out">
+          <span class="tag">Out [3]:</span>
+          <table>
+            <tr><th>Employment status</th><th>% missing salary</th></tr>
+            <tr><td>Employed</td><td>42.2%</td></tr>
+            <tr><td>Independent contractor / freelancer</td><td>54.5%</td></tr>
+            <tr><td>Not employed</td><td>77.4%</td></tr>
+            <tr><td>Retired</td><td>81.2%</td></tr>
+            <tr><td>Student</td><td>84.1%</td></tr>
+          </table>
+          <div class="finding" style="margin-top:14px;">
+            Missing salary correlates with employment status, as expected —
+            but <strong>even among employed respondents, 42% still skipped it.</strong>
+            Income is a sensitive question people decline regardless of eligibility.
+            So instead of dropping rows dataset-wide, I only filter to reported
+            salaries when salary itself is the focus.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step">
+      <div class="step-tag">step 04</div>
+      <h2>Removing outliers</h2>
+      <p class="intro">
+        Raw reported salaries ranged from <strong>$1</strong> to
+        <strong>$33,552,720</strong> a year — obvious junk and typos rather
+        than real data.
+      </p>
+      <div class="cell">
+        <div class="cell-in">
+          <span class="tag">In [4]:</span>
+          <pre>df_salary_clean = df_salary[
+    (df_salary["ConvertedCompYearly"] >= 10000) &
+    (df_salary["ConvertedCompYearly"] <= 500000)
+]</pre>
+        </div>
+        <div class="cell-out">
+          <span class="tag">Out [4]:</span>
+          <table>
+            <tr><th></th><th>Before</th><th>After</th></tr>
+            <tr><td>Rows</td><td>19,500</td><td>17,679</td></tr>
+            <tr><td>Mean</td><td>$102,510</td><td>$100,250</td></tr>
+            <tr><td>Median</td><td>$78,890</td><td>$83,792</td></tr>
+            <tr><td>Max</td><td>$33,552,720</td><td>$500,000</td></tr>
+          </table>
+          <div class="finding" style="margin-top:14px;">
+            Only ~9% of rows were removed, but the result is far more trustworthy —
+            mean and median are now much closer together, meaning the extreme
+            outliers were no longer distorting the picture.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="step">
+      <div class="step-tag">step 05</div>
+      <h2>What does the salary distribution actually look like?</h2>
+      <p class="intro">
+        With clean data in hand, the first real visualization: a histogram of
+        all 17,679 salaries.
+      </p>
+      <div class="cell">
+        <div class="cell-in">
+          <span class="tag">In [5]:</span>
+          <pre>df_salary_clean["ConvertedCompYearly"].hist(bins=50)</pre>
+        </div>
+        <div class="cell-out">
+          <span class="tag">Out [5]:</span>
+          <img src="images/chart_histogram.png" alt="Histogram of developer salaries, right-skewed with a peak around $60,000–$90,000">
+          <div class="finding" style="margin-top:14px;">
+            A classic <strong>right-skewed distribution</strong> — most developers
+            cluster around $60,000–$90,000, with a long tail of high earners
+            pulling the average upward. This is why median, not mean, is the
+            better summary statistic for salary data.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 6 -->
+    <section class="step">
+      <div class="step-tag">step 06</div>
+      <h2>Does experience predict salary?</h2>
+      <p class="intro">The obvious hypothesis first: more years coding, more pay.</p>
+      <div class="cell">
+        <div class="cell-in">
+          <span class="tag">In [6]:</span>
+          <pre>df_salary_clean[["WorkExp", "ConvertedCompYearly"]].corr()</pre>
+        </div>
+        <div class="cell-out">
+          <span class="tag">Out [6]:</span>
+          <img src="images/chart_scatter.png" alt="Scatter plot of salary vs years of experience, showing a wide scattered cloud with a weak upward trend">
+          <div class="callout-amber" style="margin-top:14px;">
+            Correlation ≈ <strong>0.32</strong> — a weak-to-moderate relationship.
+            Experience alone is a poor predictor of pay: plenty of developers with
+            20+ years of experience still earn under $100k, while others with far
+            less experience earn much more. Something else is driving the gap.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 7 -->
+    <section class="step">
+      <div class="step-tag">step 07</div>
+      <h2>Does country predict salary?</h2>
+      <p class="intro">
+        A stronger hypothesis: pay is set relative to local cost of living and
+        market maturity, not global experience.
+      </p>
+      <div class="cell">
+        <div class="cell-in">
+          <span class="tag">In [7]:</span>
+          <pre>df_salary_clean.groupby("Country")["ConvertedCompYearly"] \
+    .median().sort_values(ascending=False)</pre>
+        </div>
+        <div class="cell-out">
+          <span class="tag">Out [7]:</span>
+          <img src="images/chart_country.png" alt="Horizontal bar chart of median developer salary by country, ranging from Switzerland at the top to India at the bottom">
+          <div class="finding" style="margin-top:14px;">
+            <strong>Country explains far more of the salary gap than experience does.</strong>
+            Median salary ranges from ~$150,000 (United States) down to ~$30,000
+            (India) — roughly a <strong>5× spread</strong> — with a clear
+            economic clustering: US/Switzerland/Israel at the top, Western Europe
+            in the middle, and lower cost-of-living countries at the bottom.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONCLUSION -->
+    <section class="conclusion">
+      <div class="step-tag">step 08</div>
+      <h2>What I learned</h2>
+      <ul>
+        <li>Real survey data is messy in predictable ways — missing values often
+          have a story behind them, not just randomness.</li>
+        <li>Outliers can badly distort summary statistics (mean vs. median) if you
+          don't check for them before analyzing.</li>
+        <li>Country/geography is a far stronger driver of developer salary in this
+          dataset than years of experience — a genuinely useful, slightly
+          counter-intuitive finding.</li>
+      </ul>
+      <p style="color:var(--ink-soft); margin-top:24px;">
+        Next step I'd explore: breaking salary down by role (DevType) and
+        education level to see which matters more once country is held constant.
+      </p>
+    </section>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      Built with pandas, matplotlib &amp; Jupyter · 2025 Stack Overflow Developer Survey ·
+      <a href="#">View notebook on GitHub</a>
+    </div>
+  </footer>
+
+</body>
+</html>
