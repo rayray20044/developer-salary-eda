@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Predictor — Developer Salary EDA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F6F7F9;
+    --paper-raised: #FFFFFF;
+    --ink: #1F2933;
+    --ink-soft: #4B5563;
+    --line: #E1E4E8;
+    --blue: #4E79A7;
+    --blue-soft: #EAF0F7;
+    --amber: #E8871E;
+    --amber-soft: #FDF3E7;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+  }
+  a{ color: var(--blue); }
+  .wrap{ max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+  .top{ padding: 56px 0 32px; border-bottom: 1px solid var(--line); }
+  .back-link{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    display:inline-block;
+    margin-bottom: 20px;
+  }
+  .back-link:hover{ color: var(--blue); }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--blue);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .eyebrow::before{ content: "In [1]: "; color: var(--ink-soft); }
+  h1{
+    font-size: clamp(28px, 4.5vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 16px;
+    letter-spacing: -0.01em;
+  }
+  .top p.lede{ color: var(--ink-soft); font-size: 16px; max-width: 60ch; margin: 0; }
+
+  .tool{ padding: 40px 0 24px; }
+
+  .cell{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--paper-raised);
+  }
+  .cell-header{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--blue);
+    padding: 14px 20px;
+    background: #FBFBFC;
+    border-bottom: 1px solid var(--line);
+  }
+  .cell-body{ padding: 28px 24px; }
+
+  .field{ margin-bottom: 22px; }
+  .field label{
+    display:block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    font-family: var(--mono);
+  }
+  select, input[type="number"]{
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 15px;
+    font-family: var(--sans);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: white;
+    color: var(--ink);
+  }
+  select:focus, input:focus{ outline: none; border-color: var(--blue); }
+
+  button{
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--sans);
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  button:hover{ background: #436a94; }
+
+  /* ---------- Result + breakdown ---------- */
+  .result-wrap{ margin-top: 32px; display: none; }
+  .result-wrap.show{ display: block; }
+
+  .result-headline{
+    padding: 24px 22px;
+    background: var(--blue-soft);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 20px;
+  }
+  .result-headline .amount{
+    font-family: var(--mono);
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .result-headline .sublabel{ font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+
+  .breakdown{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper-raised);
+    overflow: hidden;
+  }
+  .breakdown-title{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--blue);
+    padding: 14px 20px;
+    background: #FBFBFC;
+    border-bottom: 1px solid var(--line);
+  }
+  .breakdown-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+    gap: 16px;
+  }
+  .breakdown-row:last-child{ border-bottom: none; }
+  .breakdown-row .row-label{ color: var(--ink-soft); }
+  .breakdown-row .row-label strong{ color: var(--ink); display:block; font-size: 15px; margin-bottom:2px; }
+  .breakdown-row .row-value{
+    font-family: var(--mono);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .row-value.positive{ color: #2F7A4D; }
+  .row-value.negative{ color: #B5423A; }
+  .breakdown-row.total{
+    background: var(--blue-soft);
+    font-size: 16px;
+  }
+  .breakdown-row.total .row-label strong{ font-size: 16px; }
+
+  .caveat{
+    margin-top: 24px;
+    padding: 18px 20px;
+    background: var(--amber-soft);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .caveat strong{ color: var(--ink); }
+
+  .model-notes{ padding: 40px 0 80px; }
+  .model-notes h2{ font-size: 20px; margin-bottom: 14px; }
+  .model-notes p{ color: var(--ink-soft); font-size: 15px; }
+  .model-notes ul{ color: var(--ink-soft); font-size: 15px; padding-left: 20px; }
+  .model-notes li{ margin-bottom: 8px; }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 32px 0 64px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <section class="top">
+      <a class="back-link" href="index.html">&larr; back to the analysis</a>
+      <div class="eyebrow">predict_salary()</div>
+      <h1>Let's estimate your salary</h1>
+      <p class="lede">
+        Enter your info and this will run the actual trained linear regression
+        model from this project — then show you exactly how it arrived at the number.
+      </p>
+    </section>
+
+    <section class="tool">
+      <div class="cell">
+        <div class="cell-header">In [1]: collect_inputs()</div>
+        <div class="cell-body">
+          <div class="field">
+            <label for="workexp">Years of professional experience</label>
+            <input type="number" id="workexp" min="0" max="50" value="5">
+          </div>
+          <div class="field">
+            <label for="country">Country</label>
+            <select id="country"></select>
+          </div>
+          <div class="field">
+            <label for="edlevel">Education level</label>
+            <select id="edlevel"></select>
+          </div>
+          <button onclick="predict()">Estimate my salary</button>
+        </div>
+      </div>
+
+      <!-- RESULT + BREAKDOWN -->
+      <div class="result-wrap" id="result-wrap">
+        <div class="result-headline">
+          <div class="amount" id="amount">$0</div>
+          <div class="sublabel">estimated yearly salary (USD)</div>
+        </div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">Out [1]: how this number was calculated</div>
+          <div class="breakdown-row">
+            <div class="row-label"><strong>Base rate</strong>the model's starting point before any adjustments</div>
+            <div class="row-value" id="row-intercept">$0</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="row-label"><strong id="row-exp-label">Experience</strong>each year adds roughly $1,560</div>
+            <div class="row-value" id="row-exp">+$0</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="row-label"><strong id="row-country-label">Country</strong>adjustment vs. the model's baseline country</div>
+            <div class="row-value" id="row-country">+$0</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="row-label"><strong id="row-ed-label">Education</strong>adjustment vs. the model's baseline education level</div>
+            <div class="row-value" id="row-ed">+$0</div>
+          </div>
+          <div class="breakdown-row total">
+            <div class="row-label"><strong>Total estimate</strong>sum of everything above</div>
+            <div class="row-value" id="row-total">$0</div>
+          </div>
+        </div>
+
+        <div class="caveat">
+          <strong>Read this before trusting the number:</strong> this model explains
+          about 43% of salary variation (R² = 0.433) — real compensation depends
+          heavily on company, role, negotiation, and factors not captured in survey
+          data. Treat this as a rough, directional estimate, not a quote.
+        </div>
+      </div>
+    </section>
+
+    <section class="model-notes">
+      <h2>How this was built</h2>
+      <ul>
+        <li>Trained on 17,525 cleaned survey responses using <strong>linear regression</strong>
+          (chosen over a random forest, which performed marginally worse on this data).</li>
+        <li>Inputs: years of experience, country, and education level — one-hot encoded.</li>
+        <li>6 countries with extremely large, unstable coefficients (likely from having
+          only 1–2 respondents each) were excluded from this tool to avoid nonsensical
+          estimates.</li>
+        <li>Every prediction is just: <em>base rate + (years × experience weight) +
+          country adjustment + education adjustment</em> — the breakdown above shows
+          each piece explicitly, nothing hidden.</li>
+        <li>This runs entirely in your browser — no server, no data leaves your device.</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      Built with pandas, scikit-learn &amp; vanilla JS · 2025 Stack Overflow Developer Survey ·
+      <a href="index.html">Back to the full write-up</a>
+    </div>
+  </footer>
+
+<script>
+const MODEL = {"intercept": 30243.56, "workexp_coef": 1560.08, "countries": {"Albania": -21992.6, "Algeria": -41108.29, "Argentina": -21013.33, "Armenia": -18996.81, "Australia": 36611.69, "Austria": 15772.07, "Azerbaijan": -18376.87, "Bahrain": 46064.05, "Bangladesh": -24140.68, "Barbados": -31583.56, "Belarus": -20370.88, "Belgium": 6558.12, "Bhutan": -41884.48, "Bolivia": -23932.19, "Bosnia and Herzegovina": -15465.62, "Brazil": -22073.19, "Bulgaria": -742.21, "Cambodia": -43439.63, "Cameroon": -51464.98, "Canada": 35907.69, "Chile": -21200.95, "China": -5184.45, "Colombia": -19321.56, "Congo, Republic of the...": 15376.9, "Costa Rica": -10189.58, "Croatia": -18404.43, "Cyprus": 15837.4, "Czech Republic": -3865.69, "Côte d'Ivoire": -29525.94, "Democratic Republic of the Congo": -45780.13, "Denmark": 32848.31, "Dominican Republic": -12499.72, "Ecuador": -17863.77, "Egypt": -29732.82, "El Salvador": -2853.71, "Estonia": 21244.97, "Ethiopia": 28751.16, "Finland": 7872.28, "France": 476.76, "Georgia": 12016.31, "Germany": 20747.72, "Ghana": -32718.84, "Greece": -14893.27, "Guatemala": -25377.21, "Guyana": -27673.43, "Honduras": -20534.65, "Hong Kong (S.A.R.)": 29554.21, "Hungary": -9799.79, "Iceland": 33401.22, "India": -21639.48, "Indonesia": -39390.84, "Iran, Islamic Republic of...": 38121.64, "Iraq": -48153.93, "Ireland": 49317.88, "Isle of Man": -3218.92, "Israel": 76205.01, "Italy": -11101.14, "Jamaica": -0.0, "Japan": 4925.0, "Jordan": -16006.25, "Kazakhstan": -31242.22, "Kenya": -16171.81, "Kosovo": -847.99, "Kuwait": -47052.49, "Kyrgyzstan": -17121.47, "Latvia": -9577.74, "Lebanon": -14610.99, "Lithuania": 9965.18, "Luxembourg": 40398.33, "Madagascar": -42451.14, "Malawi": -45910.79, "Malaysia": -32654.01, "Maldives": -38073.76, "Malta": 14956.63, "Mauritania": 61583.36, "Mauritius": -37254.83, "Mexico": -19777.14, "Moldova": -19057.75, "Mongolia": -38030.02, "Montenegro": -19775.31, "Morocco": -31370.34, "Mozambique": -42575.48, "Myanmar": -49555.47, "Nepal": -4776.22, "Netherlands": 22991.66, "New Zealand": 10621.2, "Nigeria": -32748.43, "Norway": 26768.73, "Pakistan": -34228.27, "Panama": -14508.79, "Paraguay": -24322.22, "Peru": -25621.13, "Philippines": -20844.76, "Poland": -527.53, "Portugal": 3070.53, "Qatar": -15435.72, "Republic of Korea": 50350.99, "Republic of Moldova": -10253.44, "Republic of North Macedonia": -4829.55, "Romania": -1171.53, "Russian Federation": -17670.15, "Rwanda": -25709.63, "Saint Lucia": 0.0, "Saudi Arabia": 1488.34, "Serbia": 3553.55, "Singapore": 71183.96, "Slovakia": -12917.42, "Slovenia": 5157.38, "South Africa": -8874.98, "South Korea": -2483.84, "Spain": 546.69, "Sri Lanka": -20337.17, "Suriname": -51567.02, "Swaziland": -15188.25, "Sweden": 6368.15, "Switzerland": 77955.63, "Syrian Arab Republic": -43444.78, "Taiwan": -24555.42, "Thailand": -554.24, "Trinidad and Tobago": -20542.17, "Tunisia": -39962.98, "Turkey": -10952.06, "Turkmenistan": -13839.25, "Uganda": -43291.63, "Ukraine": -15932.21, "United Arab Emirates": 29660.77, "United Kingdom of Great Britain and Northern Ireland": 34846.37, "United States of America": 93109.72, "Uruguay": -5783.86, "Uzbekistan": -23175.66, "Venezuela, Bolivarian Republic of...": -28333.32, "Viet Nam": -38486.02, "Yemen": -39183.3, "Zambia": 0.0, "Zimbabwe": -28524.71}, "edlevels": {"Bachelor\u2019s degree (B.A., B.S., B.Eng., etc.)": 17035.61, "Master\u2019s degree (M.A., M.S., M.Eng., MBA, etc.)": 25062.85, "Other (please specify):": 1023.39, "Primary/elementary school": 6876.52, "Professional degree (JD, MD, Ph.D, Ed.D, etc.)": 23972.73, "Secondary school (e.g. American high school, German Realschule or Gymnasium, etc.)": 1668.79, "Some college/university study without earning a degree": 8924.98}};
+
+function populateSelect(id, obj, includeBaseline){
+  const select = document.getElementById(id);
+  if(includeBaseline){
+    const baseOpt = document.createElement("option");
+    baseOpt.value = "__baseline__";
+    baseOpt.textContent = "Other / not listed";
+    select.appendChild(baseOpt);
+  }
+  Object.keys(obj).sort().forEach(key => {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = key;
+    select.appendChild(opt);
+  });
+}
+
+populateSelect("country", MODEL.countries, true);
+populateSelect("edlevel", MODEL.edlevels, true);
+document.getElementById("country").value = "United States of America";
+document.getElementById("edlevel").value = "Bachelor’s degree (B.A., B.S., B.Eng., etc.)";
+
+function fmt(n){
+  const sign = n < 0 ? "-" : "+";
+  return sign + Math.abs(n).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+function fmtPlain(n){
+  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+
+function predict(){
+  const workexp = parseFloat(document.getElementById("workexp").value) || 0;
+  const country = document.getElementById("country").value;
+  const edlevel = document.getElementById("edlevel").value;
+
+  const expContribution = workexp * MODEL.workexp_coef;
+  const countryCoef = country === "__baseline__" ? 0 : (MODEL.countries[country] || 0);
+  const edlevelCoef = edlevel === "__baseline__" ? 0 : (MODEL.edlevels[edlevel] || 0);
+
+  const rawTotal = MODEL.intercept + expContribution + countryCoef + edlevelCoef;
+  const total = Math.max(rawTotal, 0);
+
+  document.getElementById("amount").textContent = fmtPlain(total);
+  document.getElementById("row-intercept").textContent = fmtPlain(MODEL.intercept);
+
+  document.getElementById("row-exp-label").textContent = `Experience (${workexp} year${workexp === 1 ? "" : "s"})`;
+  const expEl = document.getElementById("row-exp");
+  expEl.textContent = fmt(expContribution);
+  expEl.className = "row-value " + (expContribution >= 0 ? "positive" : "negative");
+
+  const countryLabel = country === "__baseline__" ? "Country (baseline)" : `Country (${country})`;
+  document.getElementById("row-country-label").textContent = countryLabel;
+  const countryEl = document.getElementById("row-country");
+  countryEl.textContent = fmt(countryCoef);
+  countryEl.className = "row-value " + (countryCoef >= 0 ? "positive" : "negative");
+
+  const edLabel = edlevel === "__baseline__" ? "Education (baseline)" : "Education";
+  document.getElementById("row-ed-label").textContent = edLabel;
+  const edEl = document.getElementById("row-ed");
+  edEl.textContent = fmt(edlevelCoef);
+  edEl.className = "row-value " + (edlevelCoef >= 0 ? "positive" : "negative");
+
+  document.getElementById("row-total").textContent = fmtPlain(total);
+
+  document.getElementById("result-wrap").classList.add("show");
+}
+</script>
+
+</body>
+</html>

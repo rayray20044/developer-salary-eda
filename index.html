@@ -16,6 +16,7 @@
     --blue: #4E79A7;
     --blue-soft: #EAF0F7;
     --amber: #E8871E;
+    --amber-soft: #FDF3E7;
     --mono: 'IBM Plex Mono', monospace;
     --sans: 'IBM Plex Sans', sans-serif;
   }
@@ -214,6 +215,24 @@
     color: var(--ink-soft);
   }
 
+  /* ---------- Predictor CTA ---------- */
+  .predictor-section{
+    padding: 56px 0;
+    border-top: 1px solid var(--line);
+  }
+  .cta-button{
+    display: inline-block;
+    margin-top: 8px;
+    padding: 14px 26px;
+    background: var(--blue);
+    color: white !important;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 6px;
+    text-decoration: none;
+  }
+  .cta-button:hover{ background: #436a94; }
+
   @media (max-width: 640px){
     .hero{ padding: 64px 0 48px; }
     .stat{ min-width: 130px; }
@@ -245,6 +264,9 @@
           <div class="label">clean salary records after removing outliers</div>
         </div>
       </div>
+      <p style="margin-top:28px;">
+        <a href="#predictor" style="font-family: var(--mono); font-size:14px;">→ Try the salary predictor built from this data</a>
+      </p>
     </section>
 
     <!-- STEP 1 -->
@@ -449,9 +471,21 @@ df_jobs = df[cols]</pre>
       </div>
     </section>
 
+    <!-- PREDICTOR CTA -->
+    <section class="predictor-section" id="predictor">
+      <div class="step-tag">step 08</div>
+      <h2>What might you get paid?</h2>
+      <p class="intro">
+        I turned the trained model from this project into a live calculator —
+        plug in your experience, country, and education, and see an estimate
+        along with a full breakdown of how it was calculated.
+      </p>
+      <a href="predictor.html" class="cta-button">Let's estimate your salary →</a>
+    </section>
+
     <!-- CONCLUSION -->
     <section class="conclusion">
-      <div class="step-tag">step 08</div>
+      <div class="step-tag">step 09</div>
       <h2>What I learned</h2>
       <ul>
         <li>Real survey data is messy in predictable ways — missing values often
