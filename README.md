@@ -4,7 +4,7 @@ An exploratory data analysis of the **2025 Stack Overflow Developer Survey**
 (49,191 responses) — cleaning messy real-world survey data to find out what
 actually predicts a developer's salary.
 
-**[View the live site →](https://YOUR_USERNAME.github.io/developer-salary-eda/)**
+**[View the live site →](http://rayray20044.github.io/developer-salary-eda/)**
 
 ## What this project covers
 
